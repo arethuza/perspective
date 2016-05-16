@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"path"
-	"dispatcher"
+	dispatch "github.com/arethuza/perspective/dispatch"
 )
 
-const dispatcher = Dispatcher()
+var dispatcher = dispatch.Dispatcher()
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	path := path.Clean(r.URL.Path)
