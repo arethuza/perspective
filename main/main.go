@@ -1,10 +1,11 @@
 package main
 
 import (
+	"github.com/arethuza/perspective/dispatcher"
 	"net/http"
 	"path"
 	"strings"
-	core "github.com/arethuza/perspective/core"
+	"github.com/arethuza/perspective/items"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -12,7 +13,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	method := strings.ToLower(r.Method)
 	// Load all of the supplied params from the request into a map - apart from "action"
 	r.ParseForm()
-	action := r.Form.Get("action")
+	action := strings.ToLower(r.Form.Get("action"))
 	if action == "" {
 		action = method
 	}
@@ -22,23 +23,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 	delete(args, "action")
 	// Invoke the dispatcher to process the request
-	result, err := core.Process(path, method, action, &args)
-	if err != nil {
+	actionResult, err := dispatcher.Process(path, method, action, &args)
+	if err == nil {
+		// No error so return a normal response
+		sendResponse(&w, actionResult)
+	} else {
+		// We got an error so return its details
 		http.Error(w, err.Error(), err.Code)
 		return
-	} else {
-		sendResponse(&w, result)
 	}
 }
 
-func sendResponse(w *http.ResponseWriter, result interface{}) error {
-	switch result.(type) {
+func sendResponse(w *http.ResponseWriter, actionResult *items.ActionResult) {
+	switch (*actionResult).(type) {
 	}
-	return nil
 }
 
 func main() {
 	http.HandleFunc("/", handler)
 	http.ListenAndServe(":8080", nil)
 }
-
