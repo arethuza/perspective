@@ -17,7 +17,7 @@ const (
 
 type dispatchEntry struct {
 	authorization AuthorizationLevel
-	action items.Action
+	action        items.Action
 }
 
 var dispatchTable = make(map[string](map[string][]dispatchEntry))
@@ -30,7 +30,7 @@ func AddAction(typeName string, authLevel AuthorizationLevel, method string, nam
 	}
 	key := strings.ToLower(method) + ":" + strings.ToLower(name)
 	dispatchList, _ := actionTable[key]
-	entry := dispatchEntry{authorization:authLevel, action:action}
+	entry := dispatchEntry{authorization: authLevel, action: action}
 	actionTable[key] = append(dispatchList, entry)
 }
 

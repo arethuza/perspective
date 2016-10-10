@@ -10,4 +10,3 @@ func Load(path string) (items.Item, *items.HttpError) {
 	}
 	return nil, nil
 }
-

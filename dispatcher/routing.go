@@ -7,4 +7,3 @@ func init() {
 	AddAction(name, AuthRoot, "get", "get", items.GetRoot)
 	AddAction(name, AuthRoot, "post", "createAccount", items.CreateAccount)
 }
-

@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/arethuza/perspective/dispatcher"
+	"github.com/arethuza/perspective/items"
 	"net/http"
 	"path"
 	"strings"
-	"github.com/arethuza/perspective/items"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {

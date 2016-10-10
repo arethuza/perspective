@@ -1,6 +1,5 @@
 package items
 
-
 type RootItem struct {
 }
 
@@ -12,7 +11,6 @@ func GetRoot(item Item) (*ActionResult, *HttpError) {
 	return nil, nil
 }
 
-func CreateAccount(item Item) (*ActionResult, *HttpError){
+func CreateAccount(item Item) (*ActionResult, *HttpError) {
 	return nil, nil
 }
-
