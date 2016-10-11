@@ -1,6 +1,7 @@
 package dispatcher
 
 import (
+	"fmt"
 	"github.com/arethuza/perspective/items"
 	"strings"
 )
@@ -22,7 +23,7 @@ type dispatchEntry struct {
 
 var dispatchTable = make(map[string](map[string][]dispatchEntry))
 
-func AddAction(typeName string, authLevel AuthorizationLevel, method string, name string, action items.Action) {
+func addAction(typeName string, authLevel AuthorizationLevel, method string, name string, action items.Action) {
 	actionTable, ok := dispatchTable[typeName]
 	if !ok {
 		actionTable = make(map[string][]dispatchEntry)
@@ -34,7 +35,7 @@ func AddAction(typeName string, authLevel AuthorizationLevel, method string, nam
 	actionTable[key] = append(dispatchList, entry)
 }
 
-func Process(path, method, action string, args *map[string]string) (*items.ActionResult, *items.HttpError) {
+func Process(path, method, action string, args *map[string]string) (items.ActionResult, *items.HttpError) {
 	item, err := Load(path)
 	if err != nil {
 		return nil, &items.HttpError{}
@@ -47,19 +48,24 @@ func Process(path, method, action string, args *map[string]string) (*items.Actio
 	return actionResult, err
 }
 
-func getAction(typeName string, userAuthLevel AuthorizationLevel, method string, name string) (items.Action, *items.HttpError) {
+func getAction(typeName string, userAuthLevel AuthorizationLevel, method string, action string) (items.Action, *items.HttpError) {
 	actionTable, ok := dispatchTable[typeName]
 	if !ok {
+		message := fmt.Sprintf("Unknown item type=%s", typeName)
+		return nil, &items.HttpError{Code: 500, Message: message}
 	}
-	key := method + ":" + name
+	key := method + ":" + action
 	dispatchList, ok := actionTable[key]
 	if !ok {
-		return nil, &items.HttpError{}
+		message := fmt.Sprintf("No actions for item type=%s, method=%s, action=%s", typeName, method, action)
+		return nil, &items.HttpError{Code: 404, Message: message}
 	}
+	// Return the first action that we are authorized for, if it exists!
 	for _, entry := range dispatchList {
 		if userAuthLevel >= entry.authorization {
 			return entry.action, nil
 		}
 	}
-	return nil, &items.HttpError{}
+	// We haven't found any actions we are authorized to perform
+	return nil, &items.HttpError{Code: 403, Message: "Unauthorized"}
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/arethuza/perspective/dispatcher"
-	"github.com/arethuza/perspective/items"
 	"net/http"
 	"path"
 	"strings"
@@ -26,16 +25,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	actionResult, err := dispatcher.Process(path, method, action, &args)
 	if err == nil {
 		// No error so return a normal response
-		sendResponse(&w, actionResult)
+		actionResult.SendResponse(w)
 	} else {
 		// We got an error so return its details
 		http.Error(w, err.Error(), err.Code)
-		return
-	}
-}
-
-func sendResponse(w *http.ResponseWriter, actionResult *items.ActionResult) {
-	switch (*actionResult).(type) {
 	}
 }
 
