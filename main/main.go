@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/arethuza/perspective/dispatcher"
+	"io/ioutil"
 	"net/http"
 	"path"
 	"strings"
@@ -10,19 +11,25 @@ import (
 func handler(w http.ResponseWriter, r *http.Request) {
 	path := path.Clean(r.URL.Path)
 	method := strings.ToLower(r.Method)
-	// Load all of the supplied params from the request into a map - apart from "action"
-	r.ParseForm()
-	action := strings.ToLower(r.Form.Get("action"))
-	if action == "" {
-		action = method
-	}
 	args := make(map[string]string)
-	for name, value := range r.Form {
-		args[strings.ToLower(name)] = value[0]
+	var body []byte = nil
+	var action string
+	if method == "get" || method == "delete" {
+		r.ParseForm()
+		action = strings.ToLower(r.Form.Get("action"))
+		if action == "" {
+			action = method
+		}
+		for name, value := range r.Form {
+			args[strings.ToLower(name)] = value[0]
+		}
+		delete(args, "action")
+	} else if method == "post" || method == "put" {
+		action = method
+		body, _ = ioutil.ReadAll(r.Body)
 	}
-	delete(args, "action")
 	// Invoke the dispatcher to process the request
-	actionResult, err := dispatcher.Process(path, method, action, &args)
+	actionResult, err := dispatcher.Process(path, method, action, &args, body)
 	if err == nil {
 		// No error so return a normal response
 		actionResult.SendResponse(w)

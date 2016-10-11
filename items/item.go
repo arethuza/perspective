@@ -9,6 +9,8 @@ type Item interface {
 	TypeName() string
 }
 
+type RequestArgs *map[string]string
+
 type HttpError struct {
 	Code    int
 	Message string
@@ -18,7 +20,7 @@ func (he HttpError) Error() string {
 	return he.Message
 }
 
-type Action func(item Item) (ActionResult, *HttpError)
+type Action func(item Item, args RequestArgs, body []byte) (ActionResult, *HttpError)
 
 type ActionResult interface {
 	SendResponse(w http.ResponseWriter) *HttpError
