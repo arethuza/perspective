@@ -35,7 +35,7 @@ func addAction(typeName string, authLevel AuthorizationLevel, method string, nam
 	actionTable[key] = append(dispatchList, entry)
 }
 
-func Process(path, method, action string, args items.RequestArgs, body []byte) (items.ActionResult, *items.HttpError) {
+func Process(context *items.Context, path, method, action string, args items.RequestArgs, body []byte) (items.ActionResult, *items.HttpError) {
 	item, err := Load(path)
 	if err != nil {
 		return nil, &items.HttpError{}
@@ -44,7 +44,7 @@ func Process(path, method, action string, args items.RequestArgs, body []byte) (
 	if err != nil {
 		return nil, err
 	}
-	actionResult, err := itemAction(item, args, body)
+	actionResult, err := itemAction(context, item, args, body)
 	return actionResult, err
 }
 

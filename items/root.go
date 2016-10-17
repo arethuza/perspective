@@ -9,7 +9,7 @@ func (item RootItem) TypeName() string {
 	return "RootItem"
 }
 
-func GetRoot(item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
+func GetRoot(context *Context, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
 	var a [0]string
 	return JsonResult{value: a}, nil
 }
@@ -19,7 +19,7 @@ type CreateTenancyRequest struct {
 	Password string `json:"password"`
 }
 
-func CreateTenancy(item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
+func CreateTenancy(context *Context, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
 	var request CreateTenancyRequest
 	err := json.Unmarshal(body, &request)
 	if err != nil {

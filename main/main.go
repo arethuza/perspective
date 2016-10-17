@@ -1,15 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"github.com/arethuza/perspective/dispatcher"
+	"github.com/arethuza/perspective/items"
+	"github.com/arethuza/perspective/misc"
 	"io/ioutil"
 	"net/http"
 	"path"
+	"strconv"
 	"strings"
 )
 
+var config *misc.Config
+
 func handler(w http.ResponseWriter, r *http.Request) {
 	path := path.Clean(r.URL.Path)
+	context, err := items.CreateContext(path, config)
 	method := strings.ToLower(r.Method)
 	args := make(map[string]string)
 	var body []byte = nil
@@ -29,17 +36,27 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		body, _ = ioutil.ReadAll(r.Body)
 	}
 	// Invoke the dispatcher to process the request
-	actionResult, err := dispatcher.Process(path, method, action, &args, body)
+	actionResult, err := dispatcher.Process(context, path, method, action, &args, body)
 	if err == nil {
 		// No error so return a normal response
 		actionResult.SendResponse(w)
+	} else if httpError, ok := err.(items.HttpError); ok {
+		// We got an HTTP error so return its details
+		http.Error(w, err.Error(), httpError.Code)
 	} else {
-		// We got an error so return its details
-		http.Error(w, err.Error(), err.Code)
+		// Default return error and a 500
+		http.Error(w, err.Error(), 500)
 	}
 }
 
 func main() {
+	var err error
+	config, err = misc.LoadConfig()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
+	addr := ":" + strconv.Itoa(config.Port)
+	http.ListenAndServe(addr, nil)
 }
