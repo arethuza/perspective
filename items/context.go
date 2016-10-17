@@ -2,9 +2,9 @@ package items
 
 import (
 	"database/sql"
-	"strings"
 	"github.com/arethuza/perspective/misc"
 	_ "github.com/lib/pq"
+	"strings"
 )
 
 type Context struct {
