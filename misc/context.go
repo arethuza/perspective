@@ -1,8 +1,7 @@
-package items
+package misc
 
 import (
 	"database/sql"
-	"github.com/arethuza/perspective/misc"
 	_ "github.com/lib/pq"
 	"strings"
 )
@@ -11,7 +10,7 @@ type Context struct {
 	DatabaseConnection *sql.DB
 }
 
-func CreateContext(path string, config *misc.Config) (*Context, error) {
+func CreateContext(path string, config *Config) (*Context, error) {
 	context := &Context{}
 	a := strings.Split(path, "/")
 	var connectionString string

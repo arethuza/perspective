@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/arethuza/perspective/items"
 	"strings"
+	"github.com/arethuza/perspective/misc"
 )
 
 type AuthorizationLevel int
@@ -35,7 +36,7 @@ func addAction(typeName string, authLevel AuthorizationLevel, method string, nam
 	actionTable[key] = append(dispatchList, entry)
 }
 
-func Process(context *items.Context, path, method, action string, args items.RequestArgs, body []byte) (items.ActionResult, *items.HttpError) {
+func Process(context *misc.Context, user *items.User, path, method, action string, args items.RequestArgs, body []byte) (items.ActionResult, *items.HttpError) {
 	item, err := Load(path)
 	if err != nil {
 		return nil, &items.HttpError{}
@@ -44,8 +45,11 @@ func Process(context *items.Context, path, method, action string, args items.Req
 	if err != nil {
 		return nil, err
 	}
-	actionResult, err := itemAction(context, item, args, body)
-	return actionResult, err
+	actionResult, err := itemAction(context, user, item, args, body)
+	if err != nil {
+		return nil, err
+	}
+	return actionResult, nil
 }
 
 func getAction(typeName string, userAuthLevel AuthorizationLevel, method string, action string) (items.Action, *items.HttpError) {

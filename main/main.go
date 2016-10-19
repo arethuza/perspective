@@ -15,8 +15,9 @@ import (
 var config *misc.Config
 
 func handler(w http.ResponseWriter, r *http.Request) {
+	user := authenticate(r)
 	path := path.Clean(r.URL.Path)
-	context, err := items.CreateContext(path, config)
+	context, _ := misc.CreateContext(path, config)
 	method := strings.ToLower(r.Method)
 	args := make(map[string]string)
 	var body []byte = nil
@@ -36,16 +37,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		body, _ = ioutil.ReadAll(r.Body)
 	}
 	// Invoke the dispatcher to process the request
-	actionResult, err := dispatcher.Process(context, path, method, action, &args, body)
-	if err == nil {
+	actionResult, requestErr := dispatcher.Process(context, user, path, method, action, &args, body)
+	if requestErr == nil {
 		// No error so return a normal response
 		actionResult.SendResponse(w)
-	} else if httpError, ok := err.(items.HttpError); ok {
-		// We got an HTTP error so return its details
-		http.Error(w, err.Error(), httpError.Code)
 	} else {
-		// Default return error and a 500
-		http.Error(w, err.Error(), 500)
+		// We got an HTTP error so return its details
+		http.Error(w, requestErr.Error(), requestErr.Code)
 	}
 }
 
@@ -59,4 +57,8 @@ func main() {
 	http.HandleFunc("/", handler)
 	addr := ":" + strconv.Itoa(config.Port)
 	http.ListenAndServe(addr, nil)
+}
+
+func authenticate(r *http.Request) (*items.User) {
+	return nil
 }
