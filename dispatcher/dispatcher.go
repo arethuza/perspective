@@ -3,8 +3,8 @@ package dispatcher
 import (
 	"fmt"
 	"github.com/arethuza/perspective/items"
-	"strings"
 	"github.com/arethuza/perspective/misc"
+	"strings"
 )
 
 type AuthorizationLevel int

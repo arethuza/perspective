@@ -2,8 +2,8 @@ package items
 
 import (
 	"encoding/json"
-	"net/http"
 	"github.com/arethuza/perspective/misc"
+	"net/http"
 )
 
 type Item interface {
@@ -21,7 +21,7 @@ func (he HttpError) Error() string {
 	return he.Message
 }
 
-type Action func(context *misc.Context, user *User,item Item, args RequestArgs, body []byte) (ActionResult, *HttpError)
+type Action func(context *misc.Context, user *User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError)
 
 type ActionResult interface {
 	SendResponse(w http.ResponseWriter) *HttpError

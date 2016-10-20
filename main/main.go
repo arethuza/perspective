@@ -59,6 +59,6 @@ func main() {
 	http.ListenAndServe(addr, nil)
 }
 
-func authenticate(r *http.Request) (*items.User) {
+func authenticate(r *http.Request) *items.User {
 	return nil
 }

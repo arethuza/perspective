@@ -2,8 +2,9 @@ package items
 
 import (
 	"encoding/json"
-	"github.com/arethuza/perspective/misc"
 	"github.com/arethuza/perspective/database"
+	"github.com/arethuza/perspective/misc"
+	"strconv"
 )
 
 type RootItem struct {
@@ -27,6 +28,7 @@ type CreateTenancyRequest struct {
 type CreateTenancyResponse struct {
 	Name     string `json:"name"`
 	UserName string `json:"username"`
+	TenantId string `json:"tenantid"`
 }
 
 func CreateTenancy(context *misc.Context, user *User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
@@ -35,11 +37,10 @@ func CreateTenancy(context *misc.Context, user *User, item Item, args RequestArg
 	if err != nil {
 		return nil, &HttpError{Message: err.Error()}
 	}
-	//
-	err = database.CreateTenancy(request.Name, request.UserName, request.Password)
+	tenantId, err := database.CreateTenancy(context.DatabaseConnection, request.Name, request.UserName, request.Password)
 	if err != nil {
 		return nil, &HttpError{Message: err.Error()}
 	}
-	response := CreateTenancyResponse{Name: request.Name, UserName:request.UserName}
-	return JsonResult{value:response}, nil
+	response := CreateTenancyResponse{Name: request.Name, UserName: request.UserName, strconv.Itoa(tenantId)}
+	return JsonResult{value: response}, nil
 }
