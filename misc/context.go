@@ -7,6 +7,7 @@ import (
 )
 
 type Context struct {
+	Config *Config
 	DatabaseConnection *sql.DB
 }
 
@@ -27,5 +28,6 @@ func CreateContext(path string, config *Config) (*Context, error) {
 	if err != nil {
 		return nil, err
 	}
+	context.Config = config
 	return context, nil
 }

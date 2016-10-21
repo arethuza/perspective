@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func CreateTenancy(databaseConnection *sql.DB, name, username, password_hash string) (int, error) {
+func CreateTenancy(databaseConnection *sql.DB, name, username string, password_hash []byte) (int, error) {
 	sql := "insert into tenancy(name, admin_user, admin_password_hash, status) " +
 		"values($1, $2, $3, 1) returning id"
 	var id int
@@ -20,7 +20,7 @@ type Tenancy struct {
 	Id           int
 	Name         string
 	Username     string
-	PasswordHash string
+	PasswordHash []byte
 	Status       int
 	CreatedAt    time.Time
 }

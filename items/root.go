@@ -5,6 +5,7 @@ import (
 	"github.com/arethuza/perspective/database"
 	"github.com/arethuza/perspective/misc"
 	"strconv"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type RootItem struct {
@@ -28,7 +29,8 @@ type CreateTenancyRequest struct {
 type CreateTenancyResponse struct {
 	Name     string `json:"name"`
 	UserName string `json:"username"`
-	TenantId string `json:"tenantid"`
+	TenancyId string `json:"tenantid"`
+	Password string `json:"password"`
 }
 
 func CreateTenancy(context *misc.Context, user *User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
@@ -37,10 +39,26 @@ func CreateTenancy(context *misc.Context, user *User, item Item, args RequestArg
 	if err != nil {
 		return nil, &HttpError{Message: err.Error()}
 	}
-	tenantId, err := database.CreateTenancy(context.DatabaseConnection, request.Name, request.UserName, request.Password)
+	var password string
+	if request.Password != "" {
+		password = request.Password
+	} else {
+		password, err = misc.GenerateRandomString(context.Config.PasswordLength)
+		if err != nil {
+			return nil, &HttpError{Message: err.Error()}
+		}
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), context.Config.BcryptCost)
 	if err != nil {
 		return nil, &HttpError{Message: err.Error()}
 	}
-	response := CreateTenancyResponse{Name: request.Name, UserName: request.UserName, strconv.Itoa(tenantId)}
+	tenancyId, err := database.CreateTenancy(context.DatabaseConnection, request.Name, request.UserName, hash)
+	if err != nil {
+		return nil, &HttpError{Message: err.Error()}
+	}
+	response := CreateTenancyResponse{Name: request.Name, UserName: request.UserName, TenancyId:strconv.Itoa(tenancyId)}
+	if request.Password == "" {
+		response.Password = password
+	}
 	return JsonResult{value: response}, nil
 }

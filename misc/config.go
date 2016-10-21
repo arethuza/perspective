@@ -8,8 +8,10 @@ import (
 )
 
 type Config struct {
-	DbConnection string
-	Port         int
+	DbConnection   string
+	Port           int
+	BcryptCost     int
+	PasswordLength int
 }
 
 func LoadConfig() (*Config, error) {
