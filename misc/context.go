@@ -7,7 +7,7 @@ import (
 )
 
 type Context struct {
-	Config *Config
+	Config             *Config
 	DatabaseConnection *sql.DB
 }
 

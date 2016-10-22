@@ -9,7 +9,7 @@ func TestGenerateRandomString(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if (len(s) < 50) {
+	if len(s) < 50 {
 		t.Error("unexpected length")
 	}
 }
