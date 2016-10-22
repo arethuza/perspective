@@ -6,4 +6,5 @@ func init() {
 	name := "RootItem"
 	addAction(name, AuthRoot, "get", "get", items.GetRoot)
 	addAction(name, AuthRoot, "post", "post", items.CreateTenancy)
+	addAction(name, AuthRoot, "post", "init", items.InitSystem)
 }

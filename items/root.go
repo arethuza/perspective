@@ -20,6 +20,27 @@ func GetRoot(context *misc.Context, user *User, item Item, args RequestArgs, bod
 	return JsonResult{value: a}, nil
 }
 
+//
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+
+type InitSystemResponse struct {
+	Password string `json:"password"`
+}
+
+func InitSystem(context *misc.Context, user *User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
+	password, err := misc.GenerateRandomString(context.Config.PasswordLength)
+	if err != nil {
+		return nil, &HttpError{Message: err.Error()}
+	}
+	response := InitSystemResponse{Password:password}
+	return JsonResult{value: response}, nil
+}
+
+//
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+
 type CreateTenancyRequest struct {
 	Name     string `json:"name"`
 	UserName string `json:"username"`

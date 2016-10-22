@@ -24,11 +24,11 @@ type SuperUser struct {
 	CreatedAt    time.Time
 }
 
-func ReadSuperUser(databaseConnection *sql.DB, tenancyId int) (*SuperUser, error) {
+func ReadSuperUser(databaseConnection *sql.DB, superUserId int) (*SuperUser, error) {
 	sql := "select name, password_hash, status, created_at from superuser " +
 		"where id = $1"
 	var superUser SuperUser
-	err := databaseConnection.QueryRow(sql, tenancyId).
+	err := databaseConnection.QueryRow(sql, superUserId).
 		Scan(&superUser.Name, &superUser.PasswordHash, &superUser.Status, &superUser.CreatedAt)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -38,4 +38,8 @@ func ReadSuperUser(databaseConnection *sql.DB, tenancyId int) (*SuperUser, error
 		}
 	}
 	return &superUser, nil
+}
+
+func SetSuperUserPasswordHash(databaseConnection *sql.DB, superUserId int, password_hash []byte) error {
+	return nil
 }
