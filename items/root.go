@@ -29,12 +29,70 @@ type InitSystemResponse struct {
 }
 
 func InitSystem(context *misc.Context, user *User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
+	// Get the root superuser
+	initSuperUser, err := database.ReadSuperUserById(context.DatabaseConnection, 1)
+	if initSuperUser != nil {
+		// Already exists
+		return nil, &HttpError{Message: "init has already been executed"}
+	}
+	// Create password
 	password, err := misc.GenerateRandomString(context.Config.PasswordLength)
 	if err != nil {
 		return nil, &HttpError{Message: err.Error()}
 	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), context.Config.BcryptCost)
+	if err != nil {
+		return nil, &HttpError{Message: err.Error()}
+	}
+	// Actually create the root superuser
+	superUserId, err := database.CreateSuperUser(context.DatabaseConnection, "root", hash)
+	if superUserId != 1 {
+		return nil, &HttpError{Message: "Error creating root superuser - id != 1"}
+	} else if err != nil {
+		return nil, &HttpError{Message: err.Error()}
+	}
+	// Return response with password
 	response := InitSystemResponse{Password:password}
 	return JsonResult{value: response}, nil
+}
+
+
+//
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+
+type LoginRequest struct {
+	UserName string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
+func LoginSuperUser(context *misc.Context, user *User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
+	var request LoginRequest
+	err := json.Unmarshal(body, &request)
+	if err != nil {
+		return nil, &HttpError{Message: err.Error()}
+	}
+	superUser, err := database.ReadSuperUserByName(context.DatabaseConnection, request.UserName)
+	if err != nil {
+		return nil, &HttpError{Message: err.Error()}
+	}
+	passwordBytes := []byte(request.Password)
+	err = bcrypt.CompareHashAndPassword(superUser.PasswordHash, passwordBytes)
+	if err != nil {
+		return nil, &HttpError{Message: "bad username or password"}
+	}
+	// Password has matched
+	token, err := misc.GenerateRandomString(context.Config.TokenLength)
+	if err != nil {
+		return nil, &HttpError{Message: "failed to create session token"}
+	}
+	var response LoginResponse
+	response.Token = token
+	return JsonResult{value:response}, nil
 }
 
 //
@@ -83,3 +141,4 @@ func CreateTenancy(context *misc.Context, user *User, item Item, args RequestArg
 	}
 	return JsonResult{value: response}, nil
 }
+

@@ -12,6 +12,7 @@ type Config struct {
 	Port           int
 	BcryptCost     int
 	PasswordLength int
+	TokenLength    int
 }
 
 func LoadConfig() (*Config, error) {

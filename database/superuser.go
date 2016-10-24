@@ -3,7 +3,10 @@ package database
 import (
 	"database/sql"
 	"time"
+	"fmt"
 )
+
+const tenancyColumns = "id, name, password_hash, status, created_at"
 
 func CreateSuperUser(databaseConnection *sql.DB, username string, password_hash []byte) (int, error) {
 	sql := "insert into superuser(name, password_hash, status) " +
@@ -24,12 +27,20 @@ type SuperUser struct {
 	CreatedAt    time.Time
 }
 
-func ReadSuperUser(databaseConnection *sql.DB, superUserId int) (*SuperUser, error) {
-	sql := "select name, password_hash, status, created_at from superuser " +
-		"where id = $1"
+func ReadSuperUserByName(databaseConnection *sql.DB, name string) (*SuperUser, error) {
+	sql := fmt.Sprintf("select %s from superuser where name = $1", tenancyColumns)
+	return querySingleSuperUser(databaseConnection, sql, name)
+}
+
+func ReadSuperUserById(databaseConnection *sql.DB, superUserId int) (*SuperUser, error) {
+	sql := fmt.Sprintf("select %s from superuser where id = $1", tenancyColumns)
+	return querySingleSuperUser(databaseConnection, sql, superUserId)
+}
+
+func querySingleSuperUser(databaseConnection *sql.DB, sql string, value interface{}) (*SuperUser, error) {
 	var superUser SuperUser
-	err := databaseConnection.QueryRow(sql, superUserId).
-		Scan(&superUser.Name, &superUser.PasswordHash, &superUser.Status, &superUser.CreatedAt)
+	err := databaseConnection.QueryRow(sql, value).
+		Scan(&superUser.Id, &superUser.Name, &superUser.PasswordHash, &superUser.Status, &superUser.CreatedAt)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			return nil, nil
@@ -38,8 +49,4 @@ func ReadSuperUser(databaseConnection *sql.DB, superUserId int) (*SuperUser, err
 		}
 	}
 	return &superUser, nil
-}
-
-func SetSuperUserPasswordHash(databaseConnection *sql.DB, superUserId int, password_hash []byte) error {
-	return nil
 }
