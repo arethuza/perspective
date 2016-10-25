@@ -10,11 +10,11 @@ import (
 type AuthorizationLevel int
 
 const (
-	AuthRoot AuthorizationLevel = iota
-	AuthAdmin
-	AuthWriter
+	AuthNone AuthorizationLevel = iota
 	AuthReader
-	AuthNone
+	AuthWriter
+	AuthAdmin
+	AuthRoot
 )
 
 type dispatchEntry struct {

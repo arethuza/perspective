@@ -6,6 +6,7 @@ import (
 	"github.com/arethuza/perspective/misc"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
+	"github.com/arethuza/perspective/cache"
 )
 
 type RootItem struct {
@@ -36,7 +37,7 @@ func InitSystem(context *misc.Context, user *User, item Item, args RequestArgs, 
 		return nil, &HttpError{Message: "init has already been executed"}
 	}
 	// Create password
-	password, err := misc.GenerateRandomString(context.Config.PasswordLength)
+	password, _, err := misc.GenerateRandomString(context.Config.PasswordLength)
 	if err != nil {
 		return nil, &HttpError{Message: err.Error()}
 	}
@@ -52,10 +53,9 @@ func InitSystem(context *misc.Context, user *User, item Item, args RequestArgs, 
 		return nil, &HttpError{Message: err.Error()}
 	}
 	// Return response with password
-	response := InitSystemResponse{Password:password}
+	response := InitSystemResponse{Password: password}
 	return JsonResult{value: response}, nil
 }
-
 
 //
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -86,13 +86,14 @@ func LoginSuperUser(context *misc.Context, user *User, item Item, args RequestAr
 		return nil, &HttpError{Message: "bad username or password"}
 	}
 	// Password has matched
-	token, err := misc.GenerateRandomString(context.Config.TokenLength)
+	token, err := cache.CreateUserSession(context.Config, superUser)
 	if err != nil {
-		return nil, &HttpError{Message: "failed to create session token"}
+		return nil, &HttpError{Message: err.Error()}
 	}
+	//
 	var response LoginResponse
 	response.Token = token
-	return JsonResult{value:response}, nil
+	return JsonResult{value: response}, nil
 }
 
 //
@@ -122,7 +123,7 @@ func CreateTenancy(context *misc.Context, user *User, item Item, args RequestArg
 	if request.Password != "" {
 		password = request.Password
 	} else {
-		password, err = misc.GenerateRandomString(context.Config.PasswordLength)
+		password, _, err = misc.GenerateRandomString(context.Config.PasswordLength)
 		if err != nil {
 			return nil, &HttpError{Message: err.Error()}
 		}
@@ -141,4 +142,3 @@ func CreateTenancy(context *misc.Context, user *User, item Item, args RequestArg
 	}
 	return JsonResult{value: response}, nil
 }
-

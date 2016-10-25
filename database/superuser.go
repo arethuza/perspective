@@ -2,8 +2,8 @@ package database
 
 import (
 	"database/sql"
-	"time"
 	"fmt"
+	"time"
 )
 
 const tenancyColumns = "id, name, password_hash, status, created_at"
@@ -20,11 +20,11 @@ func CreateSuperUser(databaseConnection *sql.DB, username string, password_hash 
 }
 
 type SuperUser struct {
-	Id           int
-	Name         string
-	PasswordHash []byte
-	Status       int
-	CreatedAt    time.Time
+	Id           int	`json:"id"`
+	Name         string	`json:"name"`
+	PasswordHash []byte	`json:"-"`
+	Status       int	`json:"status"`
+	CreatedAt    time.Time	`json:"createdAt"`
 }
 
 func ReadSuperUserByName(databaseConnection *sql.DB, name string) (*SuperUser, error) {
