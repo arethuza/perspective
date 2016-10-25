@@ -20,11 +20,11 @@ func CreateSuperUser(databaseConnection *sql.DB, username string, password_hash 
 }
 
 type SuperUser struct {
-	Id           int	`json:"id"`
-	Name         string	`json:"name"`
-	PasswordHash []byte	`json:"-"`
-	Status       int	`json:"status"`
-	CreatedAt    time.Time	`json:"createdAt"`
+	Id           int       `json:"id"`
+	Name         string    `json:"name"`
+	PasswordHash []byte    `json:"-"`
+	Status       int       `json:"status"`
+	CreatedAt    time.Time `json:"createdAt"`
 }
 
 func ReadSuperUserByName(databaseConnection *sql.DB, name string) (*SuperUser, error) {

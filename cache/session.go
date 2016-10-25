@@ -1,13 +1,13 @@
 package cache
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/arethuza/perspective/misc"
 	"gopkg.in/redis.v5"
 	"time"
-	"encoding/json"
-	"crypto/sha256"
-	"encoding/hex"
 )
 
 var client *redis.Client

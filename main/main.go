@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/arethuza/perspective/cache"
 	"github.com/arethuza/perspective/dispatcher"
 	"github.com/arethuza/perspective/items"
 	"github.com/arethuza/perspective/misc"
-	"github.com/arethuza/perspective/cache"
 	"io/ioutil"
 	"net/http"
 	"path"

@@ -2,11 +2,11 @@ package items
 
 import (
 	"encoding/json"
+	"github.com/arethuza/perspective/cache"
 	"github.com/arethuza/perspective/database"
 	"github.com/arethuza/perspective/misc"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
-	"github.com/arethuza/perspective/cache"
 )
 
 type RootItem struct {

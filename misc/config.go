@@ -8,14 +8,14 @@ import (
 )
 
 type Config struct {
-	DbConnection   	string
-	Port           	int
-	BcryptCost     	int
-	PasswordLength 	int
-	TokenLength    	int
-	RedisHost 	string
-	RedisPort	int
-	RedisExpiration	string
+	DbConnection    string
+	Port            int
+	BcryptCost      int
+	PasswordLength  int
+	TokenLength     int
+	RedisHost       string
+	RedisPort       int
+	RedisExpiration string
 }
 
 func LoadConfig() (*Config, error) {
