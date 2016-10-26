@@ -1,8 +1,11 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/arethuza/perspective/cache"
+	"github.com/arethuza/perspective/database"
 	"github.com/arethuza/perspective/dispatcher"
 	"github.com/arethuza/perspective/items"
 	"github.com/arethuza/perspective/misc"
@@ -11,9 +14,6 @@ import (
 	"path"
 	"strconv"
 	"strings"
-	"github.com/arethuza/perspective/database"
-	"encoding/json"
-	"errors"
 )
 
 var config *misc.Config
@@ -21,9 +21,9 @@ var config *misc.Config
 func handler(w http.ResponseWriter, r *http.Request) {
 	path := path.Clean(r.URL.Path)
 	context, _ := misc.CreateContext(path, config)
-	user, authErr := authenticate(r, path, config)
+	user, authLevel, authErr := authenticate(r, path, config)
 	if authErr != nil {
-		http.Error(w, "problem authenticating request:" + authErr.Error(), 400)
+		http.Error(w, "problem authenticating request:"+authErr.Error(), 400)
 		return
 	}
 	method := strings.ToLower(r.Method)
@@ -50,7 +50,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		action = strings.ToLower(r.Form.Get("action"))
 	}
 	// Invoke the dispatcher to process the request
-	actionResult, requestErr := dispatcher.Process(context, user, path, method, action, &args, body)
+	actionResult, requestErr := dispatcher.Process(context, user, authLevel, path, method, action, &args, body)
 	if requestErr == nil {
 		// No error so return a normal response
 		actionResult.SendResponse(w)
@@ -77,21 +77,21 @@ func main() {
 	http.ListenAndServe(addr, nil)
 }
 
-func authenticate(r *http.Request, path string, config *misc.Config) (items.User, error) {
+func authenticate(r *http.Request, path string, config *misc.Config) (items.User, dispatcher.AuthorizationLevel, error) {
 	token := getBearerToken(r)
 	if token == "" {
-		return nil, nil
+		return nil, dispatcher.AuthNone, nil
 	}
 	sessionData, err := cache.GetUserSessionData(token)
 	if err != nil {
-		return nil, errors.New("no matching session for supplied token: " + token)
+		return nil, dispatcher.AuthNone, errors.New("no matching session for supplied token")
 	}
 	if path == "/" {
 		var superUser database.SuperUser
 		json.Unmarshal(sessionData, &superUser)
-		return superUser, nil
+		return superUser, dispatcher.AuthSuper, nil
 	}
-	return nil, nil
+	return nil, dispatcher.AuthNone, nil
 }
 
 func getBearerToken(r *http.Request) string {

@@ -14,7 +14,7 @@ const (
 	AuthReader
 	AuthWriter
 	AuthAdmin
-	AuthRoot
+	AuthSuper
 )
 
 type dispatchEntry struct {
@@ -36,12 +36,12 @@ func addAction(typeName string, authLevel AuthorizationLevel, method string, nam
 	actionTable[key] = append(dispatchList, entry)
 }
 
-func Process(context *misc.Context, user items.User, path, method, action string, args items.RequestArgs, body []byte) (items.ActionResult, *items.HttpError) {
+func Process(context *misc.Context, user items.User, authLevel AuthorizationLevel, path, method, action string, args items.RequestArgs, body []byte) (items.ActionResult, *items.HttpError) {
 	item, err := Load(path)
 	if err != nil {
 		return nil, &items.HttpError{}
 	}
-	itemAction, err := getAction(item.TypeName(), AuthRoot, method, action)
+	itemAction, err := getAction(item.TypeName(), authLevel, method, action)
 	if err != nil {
 		return nil, err
 	}
