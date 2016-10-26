@@ -16,7 +16,7 @@ func (item RootItem) TypeName() string {
 	return "RootItem"
 }
 
-func GetRoot(context *misc.Context, user *User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
+func GetRoot(context *misc.Context, user User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
 	var a [0]string
 	return JsonResult{value: a}, nil
 }
@@ -29,7 +29,7 @@ type InitSystemResponse struct {
 	Password string `json:"password"`
 }
 
-func InitSystem(context *misc.Context, user *User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
+func InitSystem(context *misc.Context, user User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
 	// Get the root superuser
 	initSuperUser, err := database.ReadSuperUserById(context.DatabaseConnection, 1)
 	if initSuperUser != nil {
@@ -70,7 +70,7 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-func LoginSuperUser(context *misc.Context, user *User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
+func LoginSuperUser(context *misc.Context, user User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
 	var request LoginRequest
 	err := json.Unmarshal(body, &request)
 	if err != nil {
@@ -113,7 +113,7 @@ type CreateTenancyResponse struct {
 	Password  string `json:"password"`
 }
 
-func CreateTenancy(context *misc.Context, user *User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
+func CreateTenancy(context *misc.Context, user User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError) {
 	var request CreateTenancyRequest
 	err := json.Unmarshal(body, &request)
 	if err != nil {

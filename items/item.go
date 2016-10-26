@@ -10,6 +10,9 @@ type Item interface {
 	TypeName() string
 }
 
+type User interface {
+}
+
 type RequestArgs *map[string]string
 
 type HttpError struct {
@@ -21,7 +24,7 @@ func (he HttpError) Error() string {
 	return he.Message
 }
 
-type Action func(context *misc.Context, user *User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError)
+type Action func(context *misc.Context, user User, item Item, args RequestArgs, body []byte) (ActionResult, *HttpError)
 
 type ActionResult interface {
 	SendResponse(w http.ResponseWriter) *HttpError

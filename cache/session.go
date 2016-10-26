@@ -8,6 +8,7 @@ import (
 	"github.com/arethuza/perspective/misc"
 	"gopkg.in/redis.v5"
 	"time"
+	"encoding/base64"
 )
 
 var client *redis.Client
@@ -33,17 +34,35 @@ func CreateUserSession(config *misc.Config, user interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	hasher := sha256.New()
-	hasher.Write(b)
-	tokenHash := hasher.Sum(nil)
-	key := "perspective:session:" + hex.EncodeToString(tokenHash)
 	value, err := json.Marshal(user)
 	if err != nil {
 		return "", err
 	}
+	key := getSessionKey(b)
 	err = client.Set(key, string(value), expiration).Err()
 	if err != nil {
 		return "", err
 	}
 	return token, nil
 }
+
+func GetUserSessionData(token string) ([]byte, error) {
+	b, err := base64.URLEncoding.DecodeString(token)
+	if err != nil {
+		return nil, err
+	}
+	key := getSessionKey(b)
+	value, err := client.Get(key).Result()
+	if err == redis.Nil {
+		return nil, err
+	}
+	return []byte(value), nil
+}
+
+func getSessionKey(b []byte) string {
+	hasher := sha256.New()
+	hasher.Write(b)
+	tokenHash := hasher.Sum(nil)
+	return "perspective:session:" + hex.EncodeToString(tokenHash)
+}
+

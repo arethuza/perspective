@@ -11,6 +11,9 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"github.com/arethuza/perspective/database"
+	"encoding/json"
+	"errors"
 )
 
 var config *misc.Config
@@ -18,7 +21,11 @@ var config *misc.Config
 func handler(w http.ResponseWriter, r *http.Request) {
 	path := path.Clean(r.URL.Path)
 	context, _ := misc.CreateContext(path, config)
-	user := authenticate(r, path, config)
+	user, authErr := authenticate(r, path, config)
+	if authErr != nil {
+		http.Error(w, "problem authenticating request:" + authErr.Error(), 400)
+		return
+	}
 	method := strings.ToLower(r.Method)
 	args := make(map[string]string)
 	var body []byte = nil
@@ -70,12 +77,21 @@ func main() {
 	http.ListenAndServe(addr, nil)
 }
 
-func authenticate(r *http.Request, path string, config *misc.Config) *items.User {
-	_ = getBearerToken(r)
-	if path == "/" {
-		//		return authenticateSuperUser()
+func authenticate(r *http.Request, path string, config *misc.Config) (items.User, error) {
+	token := getBearerToken(r)
+	if token == "" {
+		return nil, nil
 	}
-	return nil
+	sessionData, err := cache.GetUserSessionData(token)
+	if err != nil {
+		return nil, errors.New("no matching session for supplied token: " + token)
+	}
+	if path == "/" {
+		var superUser database.SuperUser
+		json.Unmarshal(sessionData, &superUser)
+		return superUser, nil
+	}
+	return nil, nil
 }
 
 func getBearerToken(r *http.Request) string {
