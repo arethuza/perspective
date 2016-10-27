@@ -56,6 +56,8 @@ func GetUserSessionData(token string) ([]byte, error) {
 	if err == redis.Nil {
 		return nil, err
 	}
+	// Reset the expiration duration for the key in redis so it stays alive
+	client.Expire(key, expiration)
 	return []byte(value), nil
 }
 
