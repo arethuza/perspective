@@ -12,7 +12,7 @@ var connectionString string = "user=postgres password=password dbname=perspectiv
 func TestCreateReadTenancy(t *testing.T) {
 	databaseConnection, _ := sql.Open("postgres", connectionString)
 	name := "tenancy" + time.Now().Format(time.RFC3339)
-	tenancyId, err := CreateTenancy(databaseConnection, name, "alice", []byte("1234"))
+	tenancyId, err := CreateTenancy(databaseConnection, name, "1234")
 	if err != nil {
 		t.Error(err)
 	}
@@ -29,11 +29,8 @@ func TestCreateReadTenancy(t *testing.T) {
 	if tenancy.Name != name {
 		t.Error("invalid name", tenancy.Name)
 	}
-	if tenancy.Username != "alice" {
-		t.Error("invalid username", tenancy.Username)
-	}
-	if string(tenancy.PasswordHash) != "1234" {
-		t.Error("invalid password hash", tenancy.PasswordHash)
+	if string(tenancy.Password) != "1234" {
+		t.Error("invalid password", tenancy.Password)
 	}
 	if tenancy.Status != 1 {
 		t.Error("invalid status", tenancy.Status)

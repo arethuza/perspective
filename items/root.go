@@ -128,11 +128,15 @@ func CreateTenancy(context *misc.Context, user User, item Item, args RequestArgs
 			return nil, &HttpError{Message: err.Error()}
 		}
 	}
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), context.Config.BcryptCost)
+	dbPassword, _, err := misc.GenerateRandomString(context.Config.PasswordLength)
 	if err != nil {
 		return nil, &HttpError{Message: err.Error()}
 	}
-	tenancyId, err := database.CreateTenancy(context.DatabaseConnection, request.Name, request.UserName, hash)
+	tenancyId, err := database.CreateTenancy(context.DatabaseConnection, request.Name, dbPassword)
+	if err != nil {
+		return nil, &HttpError{Message: err.Error()}
+	}
+	err = database.CreateTenancyDb(context.DatabaseConnection, tenancyId)
 	if err != nil {
 		return nil, &HttpError{Message: err.Error()}
 	}

@@ -66,6 +66,7 @@ func getAction(typeName string, userAuthLevel AuthorizationLevel, method string,
 	}
 	// Return the first action that we are authorized for, if it exists!
 	for _, entry := range dispatchList {
+		fmt.Printf("user %s  entry %s", userAuthLevel, entry.authorization)
 		if userAuthLevel >= entry.authorization {
 			return entry.action, nil
 		}

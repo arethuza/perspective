@@ -5,11 +5,11 @@ import (
 	"time"
 )
 
-func CreateTenancy(databaseConnection *sql.DB, name, username string, password_hash []byte) (int, error) {
-	sql := "insert into tenancy(name, admin_user, admin_password_hash, status) " +
-		"values($1, $2, $3, 1) returning id"
+func CreateTenancy(databaseConnection *sql.DB, name, password string) (int, error) {
+	sql := "insert into tenancy(name, db_password, status) " +
+		"values($1, $2, 1) returning id"
 	var id int
-	err := databaseConnection.QueryRow(sql, name, username, password_hash).Scan(&id)
+	err := databaseConnection.QueryRow(sql, name, password).Scan(&id)
 	if err != nil {
 		return -1, err
 	}
@@ -19,18 +19,17 @@ func CreateTenancy(databaseConnection *sql.DB, name, username string, password_h
 type Tenancy struct {
 	Id           int
 	Name         string
-	Username     string
-	PasswordHash []byte
+	Password     string
 	Status       int
 	CreatedAt    time.Time
 }
 
 func ReadTenancy(databaseConnection *sql.DB, tenancyId int) (*Tenancy, error) {
-	sql := "select name, admin_user, admin_password_hash, status, created_at from tenancy " +
+	sql := "select name, db_password, status, created_at from tenancy " +
 		"where id = $1"
 	var tenancy Tenancy
 	err := databaseConnection.QueryRow(sql, tenancyId).
-		Scan(&tenancy.Name, &tenancy.Username, &tenancy.PasswordHash, &tenancy.Status, &tenancy.CreatedAt)
+		Scan(&tenancy.Name, &tenancy.Password, &tenancy.Status, &tenancy.CreatedAt)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			return nil, nil

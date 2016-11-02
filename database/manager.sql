@@ -4,11 +4,12 @@ create table tenancy
 (
     id 			        serial      primary key,
     name		        text        unique not null,
-    admin_user		    text        not null,
-    admin_password_hash	bytea       not null,
+    db_password			text	    not null,
     status		        smallint    not null default 0,
     created_at          timestamp   default current_date
-)
+);
+
+drop table if exists superuser;
 
 create table superuser
 (
