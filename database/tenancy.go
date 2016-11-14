@@ -17,11 +17,11 @@ func CreateTenancy(databaseConnection *sql.DB, name, password string) (int, erro
 }
 
 type Tenancy struct {
-	Id           int
-	Name         string
-	Password     string
-	Status       int
-	CreatedAt    time.Time
+	Id        int
+	Name      string
+	Password  string
+	Status    int
+	CreatedAt time.Time
 }
 
 func ReadTenancy(databaseConnection *sql.DB, tenancyId int) (*Tenancy, error) {

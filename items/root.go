@@ -136,7 +136,7 @@ func CreateTenancy(context *misc.Context, user User, item Item, args RequestArgs
 	if err != nil {
 		return nil, &HttpError{Message: err.Error()}
 	}
-	err = database.CreateTenancyDb(context.DatabaseConnection, tenancyId)
+	_, err = database.CreateTenancyDb(context.DatabaseConnection, tenancyId)
 	if err != nil {
 		return nil, &HttpError{Message: err.Error()}
 	}
